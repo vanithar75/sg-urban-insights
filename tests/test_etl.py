@@ -1,4 +1,4 @@
-"""ETL tests using synthetic D1-shaped parquet."""
+"""Tests for mart resolution and ETL."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+from sg_insights.config import resolve_marts_root
 from sg_insights.etl.lta_marts import build_marts
 
 
@@ -69,3 +70,47 @@ def test_build_marts_creates_star_schema(
 
     dim_service = pd.read_parquet(outputs["dim_service"])
     assert "operator" in dim_service.columns
+
+
+def test_resolve_marts_uses_bundled_sample(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    sample = tmp_path / "sample_data" / "marts"
+    (sample / "facts").mkdir(parents=True)
+    (sample / "dimensions").mkdir(parents=True)
+    pd.DataFrame(
+        {
+            "bus_stop_key": ["83139"],
+            "service_key": ["15"],
+            "time_key": ["x"],
+            "arrival_count": [1],
+            "ingest_date": [pd.Timestamp("2026-06-27").date()],
+        }
+    ).to_parquet(sample / "facts" / "fact_bus_arrivals.parquet", index=False)
+    pd.DataFrame({"bus_stop_key": ["83139"], "bus_stop_label": ["Stop 83139"]}).to_parquet(
+        sample / "dimensions" / "dim_bus_stop.parquet", index=False
+    )
+    pd.DataFrame({"service_key": ["15"], "operator": ["SBST"]}).to_parquet(
+        sample / "dimensions" / "dim_service.parquet", index=False
+    )
+    pd.DataFrame(
+        {
+            "time_key": ["x"],
+            "arrival_hour": pd.to_datetime(["2026-06-27T02:00:00Z"], utc=True),
+            "hour_of_day": [2],
+            "ingest_date": [pd.Timestamp("2026-06-27").date()],
+        }
+    ).to_parquet(sample / "dimensions" / "dim_time.parquet", index=False)
+
+    empty_marts = tmp_path / "data" / "marts"
+    monkeypatch.setattr("sg_insights.config.MARTS_ROOT", empty_marts)
+    monkeypatch.setattr(
+        "sg_insights.config.FACT_BUS_ARRIVALS",
+        empty_marts / "facts" / "fact_bus_arrivals.parquet",
+    )
+    monkeypatch.setattr("sg_insights.config.SAMPLE_MARTS_ROOT", sample)
+    monkeypatch.setattr("sg_insights.config.d1_gold_lta_hourly", lambda: tmp_path / "missing_gold")
+    monkeypatch.setattr("sg_insights.config.d1_silver_lta", lambda: tmp_path / "missing_silver")
+
+    root = resolve_marts_root()
+    assert root == sample

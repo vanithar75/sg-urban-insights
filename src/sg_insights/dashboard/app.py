@@ -1,4 +1,4 @@
-"""Singapore Urban Insights — LTA mobility dashboard (D2 MVP, LTA-only)."""
+"""Singapore Urban Insights — LTA mobility dashboard."""
 
 from __future__ import annotations
 
@@ -7,8 +7,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from sg_insights.config import MARTS_ROOT
-from sg_insights.etl.lta_marts import build_marts
+from sg_insights.config import resolve_marts_root
 
 
 @st.cache_data
@@ -23,26 +22,13 @@ def load_marts(marts_dir: Path) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFram
 def render_dashboard() -> None:
     st.set_page_config(page_title="SG Urban Insights", layout="wide")
     st.title("Singapore Urban Insights")
-    st.caption(
-        "Track B D2 · Mobility subject area · LTA Bus Arrival (D1 gold layer) · "
-        "Open Government Licence"
-    )
+    st.caption("Mobility insights · LTA Bus Arrival · Open Government Licence")
 
-    marts_root = MARTS_ROOT
-    fact_path = marts_root / "facts" / "fact_bus_arrivals.parquet"
-
-    if not fact_path.is_file():
-        st.warning("Marts not built yet. Running ETL from D1…")
-        try:
-            build_marts()
-            st.success("ETL complete.")
-        except FileNotFoundError as exc:
-            st.error(str(exc))
-            st.info(
-                "Run D1 pipeline first: `python -m apac_data.pipelines.lta_bus_arrival --fixture` "
-                "then `python -m sg_insights.etl.lta_marts`"
-            )
-            return
+    try:
+        marts_root = resolve_marts_root()
+    except FileNotFoundError as exc:
+        st.error(str(exc))
+        return
 
     fact, dim_stop, dim_service, dim_time = load_marts(marts_root)
 
@@ -85,14 +71,11 @@ def render_dashboard() -> None:
 
     st.divider()
     st.caption(
-        "Data: LTA DataMall Bus Arrival via "
-        "[apac-data-foundation](https://github.com/vanithar75/apac-data-foundation). "
+        "Data: LTA DataMall Bus Arrival · pipeline "
+        "[apac-data-foundation](https://github.com/vanithar75/apac-data-foundation) · "
         "Singapore-only · No PII."
     )
 
 
 def main() -> None:
     render_dashboard()
-
-
-render_dashboard()

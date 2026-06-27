@@ -1,4 +1,4 @@
-"""Build star-schema marts from D1 LTA bus arrival layers (mobility subject area only)."""
+"""Build star-schema marts from upstream LTA bus arrival layers (mobility only)."""
 
 from __future__ import annotations
 
@@ -26,15 +26,15 @@ def build_marts(
     gold_path: Path | None = None,
     silver_path: Path | None = None,
 ) -> dict[str, Path]:
-    """Transform D1 LTA gold/silver into dashboard marts. Returns output paths."""
+    """Transform upstream LTA gold/silver into dashboard marts. Returns output paths."""
     gold_path = gold_path or d1_gold_lta_hourly()
     silver_path = silver_path or d1_silver_lta()
 
     if not gold_path.is_file():
-        msg = f"D1 gold not found: {gold_path}. Run D1 pipeline or set D1_DATA_ROOT."
+        msg = f"Upstream gold not found: {gold_path}. Run lakehouse pipeline or set D1_DATA_ROOT."
         raise FileNotFoundError(msg)
     if not silver_path.is_file():
-        msg = f"D1 silver not found: {silver_path}. Run D1 pipeline or set D1_DATA_ROOT."
+        msg = f"Upstream silver not found: {silver_path}. Run lakehouse pipeline or set D1_DATA_ROOT."
         raise FileNotFoundError(msg)
 
     gold = pd.read_parquet(gold_path)

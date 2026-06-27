@@ -5,8 +5,10 @@ __pycache__/
 venv/
 .env
 
-# Mart outputs (regenerated from D1)
+# Mart outputs (regenerated locally from upstream lakehouse)
 data/marts/**/*.parquet
+
+# Bundled sample marts for Streamlit Cloud are committed under sample_data/
 
 # IDE
 .idea/

@@ -27,7 +27,27 @@ def d1_silver_lta() -> Path:
 
 
 MARTS_ROOT = REPO_ROOT / "data" / "marts"
+SAMPLE_MARTS_ROOT = REPO_ROOT / "sample_data" / "marts"
 FACT_BUS_ARRIVALS = MARTS_ROOT / "facts" / "fact_bus_arrivals.parquet"
 DIM_BUS_STOP = MARTS_ROOT / "dimensions" / "dim_bus_stop.parquet"
 DIM_SERVICE = MARTS_ROOT / "dimensions" / "dim_service.parquet"
 DIM_TIME = MARTS_ROOT / "dimensions" / "dim_time.parquet"
+
+
+def resolve_marts_root() -> Path:
+    """Use built marts, ETL from upstream lakehouse, or bundled sample (Streamlit Cloud)."""
+    if FACT_BUS_ARRIVALS.is_file():
+        return MARTS_ROOT
+    try:
+        from sg_insights.etl.lta_marts import build_marts
+
+        build_marts()
+        if FACT_BUS_ARRIVALS.is_file():
+            return MARTS_ROOT
+    except FileNotFoundError:
+        pass
+    sample_fact = SAMPLE_MARTS_ROOT / "facts" / "fact_bus_arrivals.parquet"
+    if sample_fact.is_file():
+        return SAMPLE_MARTS_ROOT
+    msg = "No marts found. Run ETL locally or ensure sample_data/marts is present."
+    raise FileNotFoundError(msg)

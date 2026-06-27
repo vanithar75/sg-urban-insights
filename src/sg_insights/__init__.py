@@ -1,3 +1,3 @@
-"""Singapore Urban Insights Dashboard — Track B D2."""
+"""Singapore Urban Insights Dashboard."""
 
 __version__ = "0.1.0"

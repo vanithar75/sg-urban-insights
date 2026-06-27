@@ -1,29 +1,37 @@
 # Singapore Urban Insights Dashboard
 
-**Track B D2** — Batch ETL and Streamlit dashboard over **D1 LTA Bus Arrival** data only (no NEA, SingStat, or IMD in this MVP).
+Batch ETL and Streamlit dashboard over **LTA Bus Arrival** data from [apac-data-foundation](https://github.com/vanithar75/apac-data-foundation).
 
-Depends on [apac-data-foundation](https://github.com/vanithar75/apac-data-foundation) (D1) gold/silver layers.
+## Live demo
+
+Deploy on [Streamlit Community Cloud](https://share.streamlit.io/) with:
+
+| Setting | Value |
+|---------|--------|
+| **Main file** | `streamlit_app.py` |
+| **Requirements** | `requirements.txt` |
+
+The hosted app uses bundled sample marts in `sample_data/marts/` (no upstream repo required on Cloud).
 
 ## Architecture
 
 ```
-D1 gold/silver (LTA)  →  ETL star schema  →  Streamlit dashboard
-apac_data_foundation      sg_urban_insights     mobility KPIs
+apac-data-foundation (LTA gold/silver)  →  ETL star schema  →  Streamlit dashboard
 ```
 
-### Marts (mobility subject area)
+### Marts (mobility)
 
 | Mart | Source |
 |------|--------|
-| `fact_bus_arrivals` | D1 gold hourly counts |
+| `fact_bus_arrivals` | Gold hourly counts |
 | `dim_bus_stop` | Distinct stops |
-| `dim_service` | Service + operator (D1 silver) |
-| `dim_time` | Hour-of-day from arrival timestamps |
+| `dim_service` | Service + operator (silver) |
+| `dim_time` | Hour-of-day dimension |
 
-## Quick start
+## Local development
 
 ```bash
-# 1. Ensure D1 has data (fixture or live)
+# 1. Refresh upstream lakehouse data (optional)
 cd ../apac_data_foundation
 LTA_USE_FIXTURE=1 python -m apac_data.pipelines.lta_bus_arrival --fixture
 
@@ -33,16 +41,16 @@ py -3.12 -m venv .venv
 .venv\Scripts\activate
 pip install -e .
 python -m sg_insights.etl.lta_marts
-streamlit run src/sg_insights/dashboard/app.py
+streamlit run streamlit_app.py
 ```
 
-Set `D1_DATA_ROOT` in `.env` if D1 is not a sibling folder.
+Set `D1_DATA_ROOT` in `.env` if the lakehouse repo is not a sibling folder.
 
-## Deferred (full D2 charter)
+## Deferred
 
 - NEA weather / air quality marts
 - SingStat demographics
-- Public deploy (GitHub Pages / Vercel) — stretch
+- REST API layer for chart data
 
 ## License
 

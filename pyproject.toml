@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "sg-urban-insights"
 version = "0.1.0"
-description = "Singapore Urban Insights Dashboard (Track B D2) — LTA mobility MVP"
+description = "Singapore Urban Insights Dashboard — LTA mobility"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
