@@ -4,14 +4,9 @@ Batch ETL and Streamlit dashboard over **LTA Bus Arrival** data from [apac-data-
 
 ## Live demo
 
-Deploy on [Streamlit Community Cloud](https://share.streamlit.io/) with:
+**[Open dashboard](https://sg-urban-insights-2axfg7as5gjdmwmmbdmbsu.streamlit.app)**
 
-| Setting | Value |
-|---------|--------|
-| **Main file** | `streamlit_app.py` |
-| **Requirements** | `requirements.txt` |
-
-The hosted app uses bundled sample marts in `sample_data/marts/` (no upstream repo required on Cloud).
+Hosted on Streamlit Community Cloud (`streamlit_app.py`). Uses bundled sample marts in `sample_data/marts/` (no upstream repo required on Cloud).
 
 ## Architecture
 
