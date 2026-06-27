@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sg-urban-insights"
+version = "0.1.0"
+description = "Singapore Urban Insights Dashboard (Track B D2) — LTA mobility MVP"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.2.0",
+    "pyarrow>=18.0.0",
+    "python-dotenv>=1.0.0",
+    "streamlit>=1.40.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.8.0",
+]
+
+[project.scripts]
+sg-insights-etl = "sg_insights.etl.lta_marts:main"
+sg-insights-dashboard = "sg_insights.dashboard.app:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sg_insights"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Mart outputs (regenerated from D1)
+data/marts/**/*.parquet
+
+# IDE
+.idea/
+.vscode/
+.DS_Store
+
+.pytest_cache/
+.ruff_cache/
